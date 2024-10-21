@@ -50,7 +50,7 @@ This is a Django-based RESTful API for an expense sharing application. It allows
 # Testing the Expense Sharing Application with Postman
 Follow these steps to test each endpoint of the application. Make sure the server is running (`python manage.py runserver`) before you start testing.
 ## 1. User Registration
-POST http://localhost:8000/api/users/
+Hit the urls:- POST "http://localhost:8000/api/users/"
 e.g:-
 Body (raw JSON):
 json
