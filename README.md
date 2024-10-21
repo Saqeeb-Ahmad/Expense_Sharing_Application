@@ -50,7 +50,7 @@ This is a Django-based RESTful API for an expense sharing application. It allows
 # Testing the Expense Sharing Application with Postman
 Follow these steps to test each endpoint of the application. Make sure the server is running (`python manage.py runserver`) before you start testing.
 ## 1. User Registration
-Hit the urls:- POST "http://localhost:8000/api/users/"
+Hit the urls:- POST http://localhost:8000/api/users/
 e.g:-
 Body (raw JSON):
 json
@@ -81,6 +81,7 @@ GET http://localhost:8000/api/users/1/
 Response: You should receive the user's details.
 
 ## Create an Expense
+for equal:-
 POST http://localhost:8000/api/expenses/
 e.g
 {
@@ -88,6 +89,31 @@ e.g
     "split_method": "equal",
     "participants": [1, 2, 3],
     "category": "Dinner"
+}
+for Exact :-
+{
+    "total_amount": "600.00",
+    "split_method": "snacks",
+    "participants": [1, 2, 3],
+    "category": "",
+    "split_details": {
+        "1": "200.00",
+        "2": "100.00",
+        "3": "300.00"
+    }
+}
+
+for percentage :-
+{
+    "total_amount": 5000.00,
+    "split_method": "percentage",
+    "category": "Party",
+    "participants": [1, 2, 3],
+    "split_details": {
+        "1": 50.00,
+        "2": 25.00,
+        "3": 25.00
+    }
 }
 Response: You should receive splitted expense details.
 
