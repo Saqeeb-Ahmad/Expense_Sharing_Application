@@ -47,9 +47,8 @@ class LoginView(APIView):
         user = authenticate(request, username=email, password=password)
         
         if user:
-            # Generate or retrieve token for authenticated user
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_200_OK)
+            token = Token.objects.get_or_create(user=user)[0].key
+            return Response({'token': token}, status=status.HTTP_200_OK)
         else:
              # Authentication failed
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -187,9 +186,6 @@ class ExpenseCreateView(generics.CreateAPIView):
         
          # Add all participants to the expense
         expense.participants.add(*participants)
-
-
-
 
 class UserExpensesView(generics.ListAPIView):
     """
@@ -342,14 +338,19 @@ class BalanceSheetView(APIView):
             ['User', 'Total Paid', 'Total Owed']
         ])
 
-        for user in users:
-            total_paid = expenses.filter(created_by=user).aggregate(Sum('total_amount'))['total_amount__sum'] or Decimal('0')
-            total_owed = sum(Decimal(expense.split_details.get(str(user.id), 0)) for expense in expenses)
-            writer.writerow([
-                user.name,
-                f'{total_paid:.2f}',
-                f'{total_owed:.2f}'
-            ])
+        for i in range(len(users)):
+    user = users[i]
+    total_paid = expenses.filter(created_by=user).aggregate(Sum('total_amount'))['total_amount__sum'] or Decimal('0')
+    total_owed = 0
+    
+    for expense in expenses:
+        total_owed += Decimal(expense.split_details.get(str(user.id), 0))
+    
+    writer.writerow([
+        user.name,
+        f'{total_paid:.2f}',
+        f'{total_owed:.2f}'
+    ])
 
         # Generate CSV response
         response = HttpResponse(csv_buffer.getvalue(), content_type='text/csv')
