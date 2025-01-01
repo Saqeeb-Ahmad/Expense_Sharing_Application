@@ -15,11 +15,9 @@ from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from collections import defaultdict
-import csv
-import io
-from io import BytesIO
+from io import BytesIO, StringIO
 from django.db.models import Sum, Min, Max
-from io import StringIO
+
 
 # Create your views here.
 class LoginView(APIView):
