@@ -1,33 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+
 
 # Create your models here.
-# class User(AbstractUser):
-#     """
-#     Custom User model extending Django's AbstractUser.
-    
-#     This model adds additional fields to the default User model:
-#     - email: Used as the unique identifier for authentication
-#     - name: Full name of the user
-#     - mobile: Mobile number of the user
-#     """
-    
-#     email = models.EmailField(unique=True)
-#     name = models.CharField(max_length=255)
-#     mobile = models.CharField(max_length=15)
-
-#     def __str__(self):
-#         """
-#         String representation of the User model.
-        
-#         :return: User's email address
-#         """
-#         return self.email
-
-from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db import models
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
