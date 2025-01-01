@@ -67,41 +67,51 @@ class ExpenseSerializer(serializers.ModelSerializer):
         :param data: Dictionary of input data
         :return: Validated and potentially modified data dictionary
         """
-        
         split_method = data['split_method']
         total_amount = data['total_amount']
         participants = data['participants']
         split_details = data.get('split_details', {})
-
-        # Validation logic for different split method
+        
+        # Validation logic for different split methods
         if split_method == 'equal':
             share = total_amount / len(participants)
-            data['split_details'] = {str(user.id): str(share) for user in participants}
+            split_details = {}
+            for user in participants:
+                split_details[str(user.id)] = str(share)
+            data['split_details'] = split_details
+        
         elif split_method == 'exact':
             if not split_details:
                 raise serializers.ValidationError("Split details are required for exact split")
-            total_split = sum(Decimal(amount) for amount in split_details.values())
+            total_split = Decimal('0')
+            for amount in split_details.values():
+                total_split += Decimal(amount)
             if total_split != total_amount:
                 raise serializers.ValidationError("The sum of split amounts must equal the total amount")
+        
         elif split_method == 'percentage':
             if not split_details:
                 raise serializers.ValidationError("Split details are required for percentage split")
-            total_percentage = sum(Decimal(percent) for percent in split_details.values())
+            total_percentage = Decimal('0')
+            for percent in split_details.values():
+                total_percentage += Decimal(percent)
             if total_percentage != 100:
                 raise serializers.ValidationError("The sum of percentages must equal 100")
-            data['split_details'] = {
-                user_id: str(Decimal(percent) / 100 * total_amount)
-                for user_id, percent in split_details.items()
-            }
-            
+            split_details_updated = {}
+            for user_id, percent in split_details.items():
+                split_details_updated[user_id] = str(Decimal(percent) / 100 * total_amount)
+            data['split_details'] = split_details_updated
+        
         # Additional validation using external functions
         if not validate_split_details(total_amount, split_method, split_details, participants):
             raise serializers.ValidationError("Invalid split details")
-
+        
         # Calculate the final split details
-        data['split_details'] = calculate_split(total_amount, split_method, split_details, participants)
-
+        split_details_final = calculate_split(total_amount, split_method, split_details, participants)
+        data['split_details'] = split_details_final
+        
         return data
+
 
     def create(self, validated_data):
         """
