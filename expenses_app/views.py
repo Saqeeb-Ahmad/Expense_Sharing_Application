@@ -1,22 +1,21 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, serializers
 from rest_framework.response import Response
 from .serializers import ExpenseSerializer
-from rest_framework import serializers
 from django.db import transaction
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from .models import Expense, User
 import csv
 from decimal import Decimal
-from django.db.models import Sum, F, Q
+from django.db.models import Sum, F, Q, Sum, Min, Max
 from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from collections import defaultdict
 from io import BytesIO, StringIO
-from django.db.models import Sum, Min, Max
+
 
 
 # Create your views here.
@@ -406,4 +405,9 @@ class UserBalanceView(APIView):
                         # Current user owes to the expense creator
                         balances[participant] -= Decimal(amount)
         # Convert User objects to string representations in the response
-        return Response({str(user): str(balance) for user, balance in balances.items()})
+        response_data = {}
+        for user, balance in balances.items():
+            response_data[str(user)] = str(balance)
+        return Response(response_data)
+
+    
